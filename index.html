@@ -3,67 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jogo da Memória + Relógio</title>
+    <title>Jogo da Memória</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="page">
-      <main class="game" aria-label="Jogo da memória de tecnologia">
-        <header class="header">
-          <h1>Jogo da Memória</h1>
+    <main class="game" aria-label="Jogo da memória de tecnologia">
+      <header class="header">
+        <h1>Jogo da Memória</h1>
 
-          <div class="stats" aria-label="Estatísticas do jogo">
-            <div class="stat" aria-live="polite">
-              <span class="stat-label">Jogadas</span>
-              <span id="moves" class="stat-value">0</span>
-            </div>
-
-            <div class="stat" aria-live="polite">
-              <span class="stat-label">Tempo</span>
-              <span id="timer" class="stat-value">00:00</span>
-            </div>
+        <div class="stats" aria-label="Estatísticas do jogo">
+          <div class="stat" aria-live="polite">
+            <span class="stat-label">Jogadas</span>
+            <span id="moves" class="stat-value">0</span>
           </div>
-        </header>
 
-        <div id="board" class="board" aria-live="polite"></div>
-
-        <div id="message" class="message" role="status" aria-live="polite">
-          <h2>Parabéns!</h2>
-          <p id="message-text">Você venceu.</p>
-          <button id="restartButton" class="restart-btn" type="button">
-            Jogar novamente
-          </button>
+          <div class="stat" aria-live="polite">
+            <span class="stat-label">Tempo</span>
+            <span id="timer" class="stat-value">00:00</span>
+          </div>
         </div>
-      </main>
+      </header>
 
-      <aside class="clock-panel" aria-label="Relógio mundial">
-        <h2 class="clock-title">Fusos horários</h2>
+      <div id="board" class="board" aria-live="polite"></div>
 
-        <div class="timezone-card">
-          <p class="timezone-label">São Paulo</p>
-          <p id="time-sao-paulo" class="time">--:--:--</p>
-          <div id="date-sao-paulo" class="date">--</div>
-        </div>
-
-        <div class="timezone-card">
-          <p class="timezone-label">New York</p>
-          <p id="time-new-york" class="time">--:--:--</p>
-          <div id="date-new-york" class="date">--</div>
-        </div>
-
-        <div class="timezone-card">
-          <p class="timezone-label">Londres</p>
-          <p id="time-london" class="time">--:--:--</p>
-          <div id="date-london" class="date">--</div>
-        </div>
-
-        <div class="timezone-card">
-          <p class="timezone-label">Tóquio</p>
-          <p id="time-tokyo" class="time">--:--:--</p>
-          <div id="date-tokyo" class="date">--</div>
-        </div>
-      </aside>
-    </div>
+      <div id="message" class="message" role="status" aria-live="polite">
+        <h2>Parabéns!</h2>
+        <p id="message-text">Você venceu.</p>
+        <button id="restartButton" class="restart-btn" type="button">
+          Jogar novamente
+        </button>
+      </div>
+    </main>
 
     <script src="script.js"></script>
   </body>
