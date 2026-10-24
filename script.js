@@ -188,40 +188,5 @@ function resetGame() {
   renderBoard();
 }
 
-const timeZones = [
-  { zone: 'America/Sao_Paulo', id: 'time-sao-paulo', dateId: 'date-sao-paulo' },
-  { zone: 'America/New_York', id: 'time-new-york', dateId: 'date-new-york' },
-  { zone: 'Europe/London', id: 'time-london', dateId: 'date-london' },
-  { zone: 'Asia/Tokyo', id: 'time-tokyo', dateId: 'date-tokyo' },
-];
-
-function updateClocks() {
-  const now = new Date();
-
-  timeZones.forEach(({ zone, id, dateId }) => {
-    const timeFormatter = new Intl.DateTimeFormat('pt-BR', {
-      timeZone: zone,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-
-    const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
-      timeZone: zone,
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-
-    document.getElementById(id).textContent = timeFormatter.format(now);
-    document.getElementById(dateId).textContent = dateFormatter.format(now);
-  });
-}
-
-updateClocks();
-setInterval(updateClocks, 1000);
-
 resetGame();
 restartButton.addEventListener('click', resetGame);
