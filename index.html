@@ -1,12 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Teste Enzo</h1>
-    <h2>ashdgjadashgdas</h2>
-</body>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jogo da Memória Tech</title>
+    <style>
+      :root {
+        --bg: #f3f6fb;
+        --panel: #ffffff;
+        --panel-alt: #eef3ff;
+        --primary: #3b82f6;
+        --primary-strong: #2563eb;
+        --text: #1f2937;
+        --muted: #64748b;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --border: #dfe7f5;
+        --shadow: rgba(15, 23, 42, 0.08);
+        --card-front: #dbeafe;
+        --card-back: linear-gradient(135deg, #1d4ed8, #60a5fa);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .game {
+        width: min(100%, 700px);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 18px 40px var(--shadow);
+        padding: 24px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.6rem, 2vw + 1rem, 2.5rem);
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      .stat {
+        min-width: 120px;
+        background: var(--panel-alt);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 14px;
+        text-align: center;
+      }
+
+      .stat-label {
+        display: block;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .stat-value {
+        display: block;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-top: 4px;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(60px, 1fr));
+        gap: 16px;
+      }
+
+      .memory-card {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        border: none;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+        border-radius: 16px;
+        outline-offset: 4px;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+      }
+
+      .memory-card:focus-visible {
+        outline: 3px solid var(--primary);
+        outline-offset: 4px;
+      }
+
+      .memory-card:disabled {
+        cursor: default;
+      }
+
+      .card-inner {
+        position: absolute;
+        inset: 0;
+        border-radius: 16px;
+        transform-style: preserve-3d;
+        transition: transform 0.5s ease;
+      }
+
+      .memory-card.is-flipped .card-inner,
+      .memory-card.is-matched .card-inner {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        backface-visibility: hidden;
+        border-radius: 16px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        user-select: none;
+      }
+
+      .card-back {
+        background: var(--card-back);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.25);
+        box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
+      }
+
+      .card-back::before {
+        content: "?";
+        font-size: clamp(2.1rem, 4vw, 3rem);
+        font-weight: 700;
+      }
+
+      .card-front {
+        background: var(--card-front);
+        border: 2px solid var(--border);
+        transform: rotateY(180deg);
+      }
+
+      .memory-card.is-matched .card-front {
+        background: #dcfce7;
+        border-color: #86efac;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+      }
+
+      .message {
+        margin-top: 22px;
+        display: none;
+        padding: 18px 20px;
+        border-radius: 14px;
+        background: #dcfce7;
+        border: 1px solid #86efac;
+        color: #166534;
+        text-align: center;
+      }
+
+      .message.visible {
+        display: block;
+      }
+
+      .message h2 {
+        margin: 0 0 6px;
+        font-size: 1.5rem;
+      }
+
+      .message p {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .restart-btn {
+        margin-top: 16px;
+        border: none;
+        border-radius: 999px;
+        background: var(--primary);
+        color: white;
+        padding: 12px 22px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+
+      .restart-btn:hover,
+      .restart-btn:focus-visible {
+        background: var(--primary-strong);
+      }
+
+      .restart-btn:active {
+        transform: translateY(1px);
+      }
+
+      .restart-btn:focus-visible {
+        outline: 3px solid rgba(59, 130, 246, 0.35);
+        outline-offset: 2px;
+      }
+
+      @media (max-width: 540px) {
+        body {
+          padding: 16px;
+        }
+
+        .game {
+          padding: 18px 14px;
+        }
+
+        .header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .stats {
+          justify-content: space-between;
+        }
+
+        .stat {
+          flex: 1 1 30%;
+          min-width: 0;
+        }
+
+        .board {
+          gap: 10px;
+          grid-template-columns: repeat(3, minmax(55px, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="game" aria-label="Jogo da memória de tecnologia">
+      <header class="header">
+        <h1>Jogo da Memória</h1>
+        <div class="stats" aria-label="Estatísticas do jogo">
+          <div class="stat" aria-live="polite">
+            <span class="stat-label">Jogadas</span>
+            <span id="moves" class="stat-value">0</span>
+          </div>
+          <div class="stat" aria-live="polite">
+            <span class="stat-label">Tempo</span>
+            <span id="timer" class="stat-value">00:00</span>
+          </div>
+        </div>
+      </header>
+
+      <div id="board" class="board" aria-live="polite"></div>
+
+      <div id="message" class="message" role="status" aria-live="polite">
+        <h2>Parabéns!</h2>
+        <p id="message-text">Você venceu.</p>
+        <button id="restartButton" class="restart-btn" type="button">Jogar novamente</button>
+      </div>
+    </main>
+
+    <script>
+      const emojis = ['💻', '🐙', '🤖', '🚀', '☕', '🐛'];
+      const board = document.getElementById('board');
+      const movesDisplay = document.getElementById('moves');
+      const timerDisplay = document.getElementById('timer');
+      const messageBox = document.getElementById('message');
+      const messageText = document.getElementById('message-text');
+      const restartButton = document.getElementById('restartButton');
+
+      const state = {
+        deck: [],
+        firstCard: null,
+        secondCard: null,
+        lockBoard: false,
+        moves: 0,
+        matchedPairs: 0,
+        seconds: 0,
+        timerId: null,
+        started: false,
+        finished: false
+      };
+
+      function formatTime(totalSeconds) {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }
+
+      function startTimer() {
+        if (state.timerId !== null) {
+          return;
+        }
+
+        state.timerId = setInterval(() => {
+          state.seconds += 1;
+          timerDisplay.textContent = formatTime(state.seconds);
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (state.timerId !== null) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function shuffle(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      }
+
+      function createDeck() {
+        return shuffle([...emojis, ...emojis]);
+      }
+
+      function updateMoves() {
+        movesDisplay.textContent = String(state.moves);
+      }
+
+      function setCardAccessibility(card, emoji, isHidden) {
+        if (isHidden) {
+          card.setAttribute('aria-label', 'Carta oculta');
+          card.setAttribute('aria-pressed', 'false');
+        } else {
+          card.setAttribute('aria-label', `Carta com emoji ${emoji}`);
+          card.setAttribute('aria-pressed', 'true');
+        }
+      }
+
+      function buildCard(emoji) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'memory-card';
+        button.setAttribute('aria-label', 'Carta oculta');
+        button.setAttribute('aria-pressed', 'false');
+
+        const inner = document.createElement('span');
+        inner.className = 'card-inner';
+
+        const back = document.createElement('span');
+        back.className = 'card-face card-back';
+        back.setAttribute('aria-hidden', 'true');
+
+        const front = document.createElement('span');
+        front.className = 'card-face card-front';
+        front.textContent = emoji;
+        front.setAttribute('aria-hidden', 'true');
+
+        inner.append(back, front);
+        button.appendChild(inner);
+
+        button.addEventListener('click', () => {
+          if (
+            state.lockBoard ||
+            button === state.firstCard ||
+            button.classList.contains('is-matched') ||
+            button.classList.contains('is-flipped') ||
+            state.finished
+          ) {
+            return;
+          }
+
+          if (!state.started) {
+            state.started = true;
+            startTimer();
+          }
+
+          button.classList.add('is-flipped');
+          setCardAccessibility(button, emoji, false);
+
+          if (!state.firstCard) {
+            state.firstCard = button;
+            return;
+          }
+
+          state.secondCard = button;
+          state.moves += 1;
+          updateMoves();
+          state.lockBoard = true;
+
+          const firstEmoji = state.firstCard.querySelector('.card-front').textContent;
+          const secondEmoji = state.secondCard.querySelector('.card-front').textContent;
+
+          if (firstEmoji === secondEmoji) {
+            state.firstCard.classList.add('is-matched');
+            state.secondCard.classList.add('is-matched');
+            state.firstCard.disabled = true;
+            state.secondCard.disabled = true;
+            state.matchedPairs += 1;
+            state.firstCard = null;
+            state.secondCard = null;
+            state.lockBoard = false;
+
+            if (state.matchedPairs === emojis.length) {
+              finishGame();
+            }
+            return;
+          }
+
+          setTimeout(() => {
+            state.firstCard.classList.remove('is-flipped');
+            state.secondCard.classList.remove('is-flipped');
+            setCardAccessibility(state.firstCard, firstEmoji, true);
+            setCardAccessibility(state.secondCard, secondEmoji, true);
+            state.firstCard = null;
+            state.secondCard = null;
+            state.lockBoard = false;
+          }, 1000);
+        });
+
+        return button;
+      }
+
+      function renderBoard() {
+        board.innerHTML = '';
+
+        state.deck.forEach((emoji) => {
+          const card = buildCard(emoji);
+          board.appendChild(card);
+        });
+      }
+
+      function finishGame() {
+        state.finished = true;
+        stopTimer();
+        messageText.textContent = `Você venceu em ${formatTime(state.seconds)} com ${state.moves} jogadas.`;
+        messageBox.classList.add('visible');
+      }
+
+      function resetGame() {
+        state.deck = createDeck();
+        state.firstCard = null;
+        state.secondCard = null;
+        state.lockBoard = false;
+        state.moves = 0;
+        state.matchedPairs = 0;
+        state.seconds = 0;
+        state.started = false;
+        state.finished = false;
+        stopTimer();
+        timerDisplay.textContent = '00:00';
+        updateMoves();
+        messageBox.classList.remove('visible');
+        renderBoard();
+      }
+
+      resetGame();
+      restartButton.addEventListener('click', resetGame);
+    </script>
+  </body>
 </html>
